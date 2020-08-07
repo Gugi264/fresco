@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.ECCelerateFieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -43,6 +44,7 @@ import dk.alexandra.fresco.tools.ot.base.DhParameters;
 import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
+import iaik.security.ec.provider.ECCelerate;
 import java.io.File;
 import java.math.BigInteger;
 import java.util.*;
@@ -146,7 +148,8 @@ public class CmdLineProtocolSuite {
 
     final int modBitLength = Integer.parseInt(properties.getProperty("spdz.modBitLength", "128"));
     final BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
-    final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
+    ECCelerate.addAsProvider();
+    final ECCelerateFieldDefinition definition = new ECCelerateFieldDefinition(modulus);
     SpdzDataSupplier supplier = null;
 
     if (strategy == PreprocessingStrategy.DUMMY) {

@@ -45,12 +45,12 @@
 	<!-- Test -->
 	<dependencies>
 		<dependency>
-			<groupId>com.iaik</groupId>
+			<groupId>iaik</groupId>
 			<artifactId>eccelerate</artifactId>
 			<version>6.02</version>
 		</dependency>
 		<dependency>
-			<groupId>com.iaik</groupId>
+			<groupId>iaik</groupId>
 			<artifactId>jce</artifactId>
 			<version>1.03</version>
 		</dependency>
