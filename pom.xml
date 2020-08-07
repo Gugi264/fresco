@@ -44,6 +44,16 @@
 
 	<!-- Test -->
 	<dependencies>
+		<dependency>
+			<groupId>com.iaik</groupId>
+			<artifactId>eccelerate</artifactId>
+			<version>6.02</version>
+		</dependency>
+		<dependency>
+			<groupId>com.iaik</groupId>
+			<artifactId>jce</artifactId>
+			<version>1.03</version>
+		</dependency>
 		<!-- logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>

@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
 public interface SecureComputationEngine<ResourcePoolT extends ResourcePool,
     BuilderT extends ProtocolBuilder> {
 
-  static final Duration DEFAULT_TIMEOUT = Duration.ofMinutes(10);
+  static final Duration DEFAULT_TIMEOUT = Duration.ofMinutes(100);
 
   /**
    * Executes an application based on the current configuration.
