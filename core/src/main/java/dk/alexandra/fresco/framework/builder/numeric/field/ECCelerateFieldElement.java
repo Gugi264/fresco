@@ -12,13 +12,12 @@ public class ECCelerateFieldElement implements FieldElement{
 
   private ECCelerateFieldElement(PrimeFieldElement value, AbstractPrimeField field)
   {
-    System.out.println("new ecc field element");
     this.primeField = field;
     this.element = value;
   }
 
   static FieldElement create(BigInteger value, AbstractPrimeField field) {
-    return create(field.newElement(value), field);
+    return create(field.newElement(value.mod(field.getP())), field);
   }
 
   static FieldElement create(long value, AbstractPrimeField field) {
@@ -27,6 +26,11 @@ public class ECCelerateFieldElement implements FieldElement{
   static FieldElement create(PrimeFieldElement element, AbstractPrimeField field) {
     return new ECCelerateFieldElement(element, field);
   }
+
+  static FieldElement create(byte[] value, AbstractPrimeField field) {
+    return create(field.newElement(value), field);
+  }
+
 
   @Override
   public FieldElement subtract(FieldElement other) {
@@ -47,13 +51,12 @@ public class ECCelerateFieldElement implements FieldElement{
 
   @Override
   public FieldElement sqrt() {
-    return create(this.element.squareOutOfPlace(), this.primeField);
+    return create(this.element.squareRoot(), this.primeField);
   }
 
   @Override
   public FieldElement modInverse() {
-    System.out.println("MOnd inverse not implemented");
-    return null;
+    return create(this.element.invert(), primeField);
   }
 
   @Override
@@ -64,6 +67,11 @@ public class ECCelerateFieldElement implements FieldElement{
 
   public PrimeFieldElement getElement() {
     return element;
+  }
+
+  static byte[] extractByteArray(FieldElement element)
+  {
+    return ((ECCelerateFieldElement) element).element.toByteArray();
   }
 
   static BigInteger extractValue(FieldElement element) {

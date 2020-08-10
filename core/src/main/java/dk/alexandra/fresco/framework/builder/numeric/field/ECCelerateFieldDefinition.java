@@ -2,9 +2,12 @@ package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import iaik.security.ec.math.field.AbstractPrimeField;
+import iaik.security.ec.math.field.Field;
 import iaik.security.ec.math.field.PrimeFieldByPrimeFactory;
 import iaik.security.ec.provider.ECCelerate;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class ECCelerateFieldDefinition implements FieldDefinition {
@@ -47,36 +50,52 @@ public final class ECCelerateFieldDefinition implements FieldDefinition {
 
   @Override
   public StrictBitVector convertToBitVector(FieldElement fieldElement) {
-    return null;
+    FieldUtils utils = new FieldUtils(primeField.getP().bitLength(), this::createElement,
+        ECCelerateFieldElement::extractValue);
+    return utils.convertToBitVector(fieldElement);
   }
 
   @Override
   public BigInteger convertToUnsigned(FieldElement value) {
-    return null;
+    return ECCelerateFieldElement.extractValue(value);
   }
 
   @Override
   public BigInteger convertToSigned(BigInteger asUnsigned) {
-    return null;
+    return FieldUtils.convertRepresentation(asUnsigned, getModulus(), getModulus().shiftRight(1));
   }
 
   @Override
   public byte[] serialize(FieldElement object) {
-    return new byte[0];
+    return ECCelerateFieldElement.extractByteArray(object);
   }
 
   @Override
   public byte[] serialize(List<FieldElement> objects) {
-    return new byte[0];
+    int byteArrayLength = (primeField.getP().bitLength() + 7) >>> 3;
+    ByteBuffer target = ByteBuffer.allocate(byteArrayLength*objects.size());
+    for (FieldElement o : objects)
+    {
+      target.put(serialize(o));
+    }
+    return target.array();
   }
 
   @Override
   public FieldElement deserialize(byte[] bytes) {
-    return null;
+    return ECCelerateFieldElement.create(bytes, this.primeField);
   }
 
   @Override
   public List<FieldElement> deserializeList(byte[] bytes) {
-    return null;
+    int byteArrayLength = (primeField.getP().bitLength() + 7) >>> 3;
+    List<FieldElement> target = new ArrayList<FieldElement>(bytes.length/byteArrayLength);
+    ByteBuffer buffer = ByteBuffer.wrap(bytes);
+    byte[] tmp = new byte[byteArrayLength];
+    for (int i = 0; i < bytes.length; i+=byteArrayLength) {
+      buffer.get(tmp, 0, byteArrayLength);
+      target.add(deserialize(tmp));
+    }
+    return target;
   }
 }
