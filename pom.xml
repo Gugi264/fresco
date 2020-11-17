@@ -124,6 +124,7 @@
 		<module>suite</module>
 		<module>demos</module>
 		<module>tools</module>
+		<module>myfirsttest</module>
 	</modules>
 
 	<organization>
