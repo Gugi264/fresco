@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.slf4j.Logger;
@@ -70,7 +72,8 @@ public class TestDemo implements Application<BigInteger, ProtocolBuilderNumeric>
         }
       }
       long nr_inputs = inputs.size();
-      sum = seq.advancedNumeric().div(sum, nr_inputs);
+      sum = AdvancedNumeric.using(seq).div(sum, nr_inputs);
+      //sum = seq.advancedNumeric().div(sum, nr_inputs);
       return seq.numeric().open(sum);
     });
   }
