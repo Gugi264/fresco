@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.tools.cointossing;
 
-import dk.alexandra.fresco.commitment.HashBasedCommitment;
-import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
+import dk.alexandra.fresco.tools.commitment.HashBasedCommitment;
+import dk.alexandra.fresco.tools.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
@@ -12,7 +12,7 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 /**
  * Class implementing two-party coin-tossing. That is, agreement on a random
  * string of bits between two parties even if one of them is acting maliciously.
- * <br/>
+ * <br>
  * The protocol uses the standard approach both parties picking a personal seed.
  * One party commits to it. The other party then sends its seed to the first
  * party. The first party opens it commitment. The parties computes the XOR of
