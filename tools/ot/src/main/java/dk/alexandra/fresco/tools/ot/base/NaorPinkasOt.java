@@ -2,12 +2,7 @@ package dk.alexandra.fresco.tools.ot.base;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.Drng;
-import dk.alexandra.fresco.framework.util.DrngImpl;
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.framework.util.*;
 import dk.alexandra.fresco.tools.ot.otextension.PseudoOtp;
 import iaik.security.ec.common.ECParameterSpec;
 import iaik.security.ec.common.ECStandardizedParameterFactory;
@@ -63,7 +58,7 @@ public class NaorPinkasOt implements Ot {
     this.dhGenerator = params.getG();*/
     this.curve = ecParameterSpec.getCurve().getIAIKCurve();
     this.dhModulus = this.curve.getOrder();
-    this.dhGenerator = this.curve.getGenerator();
+    this.dhGenerator = curve.newPoint(ecParameterSpec.getGenerator());
     this.randNum = new DrngImpl(randBit);
     iaik.security.ec.math.curve.ECPoint.allFunctionsInPlace(true);
 
@@ -74,6 +69,7 @@ public class NaorPinkasOt implements Ot {
   public void
   send(StrictBitVector messageZero, StrictBitVector messageOne) {
     System.out.println("in send");
+    System.out.flush();
     int maxBitLength = Math.max(messageZero.getSize(), messageOne.getSize());
     Pair<byte[], byte[]> seedMessages = sendRandomOt();
     byte[] encryptedZeroMessage = PseudoOtp.encrypt(messageZero.toByteArray(),
@@ -126,12 +122,12 @@ public class NaorPinkasOt implements Ot {
   private Pair<byte[], byte[]> sendRandomOt() {
 
     ECPoint randPoint = this.curve.multiplyPoint(this.dhGenerator, randNum.nextBigInteger(dhModulus));
-    System.out.println("in sendRandomOt");
-    System.out.println(randPoint.toString());
+    //System.out.println(randPoint.toString());
     System.out.flush();
     //BigInteger c = randNum.nextBigInteger(dhModulus);
 
     network.send(otherId, this.curve.encodePoint(randPoint));
+    System.out.println(ByteAndBitConverter.bytesToHex(randPoint.encodePoint()));
     //BigInteger publicKeyZero = new BigInteger(network.receive(otherId));
     ECPoint publicKeyZero;
     try{
@@ -140,12 +136,16 @@ public class NaorPinkasOt implements Ot {
     catch (Exception e) {
       throw new RuntimeException(e);
     }
+    System.out.println(ByteAndBitConverter.bytesToHex(publicKeyZero.encodePoint()));
     // BigInteger publicKeyOne = publicKeyZero.modInverse(dhModulus).multiply(c);
     ECPoint publicKeyOne = publicKeyZero.clone().negatePoint().addPoint(randPoint);
     Pair<ECPoint, byte[]> zeroChoiceData = encryptRandomMessage(publicKeyZero);
     Pair<ECPoint, byte[]> oneChoiceData = encryptRandomMessage(publicKeyOne);
     network.send(otherId, zeroChoiceData.getFirst().encodePoint());
     network.send(otherId, oneChoiceData.getFirst().encodePoint());
+    System.out.println(ByteAndBitConverter.bytesToHex(zeroChoiceData.getFirst().encodePoint()));
+    System.out.println(ByteAndBitConverter.bytesToHex(oneChoiceData.getFirst().encodePoint()));
+    System.out.flush();
     return new Pair<>(zeroChoiceData.getSecond(), oneChoiceData.getSecond());
   }
 
@@ -173,8 +173,10 @@ public class NaorPinkasOt implements Ot {
     //BigInteger publicKeyNotSigma = publicKeySigma.modInverse(dhModulus).multiply(c);
     if (choiceBit == false) {
       network.send(otherId, publicKeySigma.encodePoint());
+      System.out.println(ByteAndBitConverter.bytesToHex(publicKeySigma.encodePoint()));
     } else {
       network.send(otherId, publicKeyNotSigma.encodePoint());
+      System.out.println(ByteAndBitConverter.bytesToHex(publicKeyNotSigma.encodePoint()));
     }
     //BigInteger encZero = new BigInteger(network.receive(otherId));
     //BigInteger encOne = new BigInteger(network.receive(otherId));
@@ -183,6 +185,8 @@ public class NaorPinkasOt implements Ot {
     try{
       encZero = this.curve.decodePoint(network.receive(otherId));
       encOne = this.curve.decodePoint(network.receive(otherId));
+      System.out.println(ByteAndBitConverter.bytesToHex(encZero.encodePoint()));
+      System.out.println(ByteAndBitConverter.bytesToHex(encOne.encodePoint()));
     }
     catch (Exception e)
     {
@@ -194,6 +198,7 @@ public class NaorPinkasOt implements Ot {
     } else {
       message = decryptRandomMessage(encOne, privateKey);
     }
+    System.out.println(ByteAndBitConverter.bytesToHex(message));
     return message;
   }
 
