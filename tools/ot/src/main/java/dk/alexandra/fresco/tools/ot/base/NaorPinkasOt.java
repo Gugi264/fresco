@@ -35,7 +35,6 @@ public class NaorPinkasOt implements Ot {
    * The generator of the Diffie-Hellman group used in the OT.
    */
   private final ECPoint dhGenerator;
-  //private final BigInteger dhGenerator;
 
   private final ECParameterSpec ecParameterSpec;
   private final iaik.security.ec.math.curve.EllipticCurve curve;
@@ -54,8 +53,6 @@ public class NaorPinkasOt implements Ot {
     this.ecParameterSpec = ECStandardizedParameterFactory.getPrimeCurveParametersByBitLength(256);
     this.hashDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance(HASH_ALGORITHM),
             "Missing secure, hash function which is dependent in this library");
-    /*this.dhModulus = params.getP();
-    this.dhGenerator = params.getG();*/
     this.curve = ecParameterSpec.getCurve().getIAIKCurve();
     this.dhModulus = this.curve.getOrder();
     this.dhGenerator = curve.newPoint(ecParameterSpec.getGenerator());
@@ -68,7 +65,6 @@ public class NaorPinkasOt implements Ot {
   @Override
   public void
   send(StrictBitVector messageZero, StrictBitVector messageOne) {
-    System.out.println("in send");
     System.out.flush();
     int maxBitLength = Math.max(messageZero.getSize(), messageOne.getSize());
     Pair<byte[], byte[]> seedMessages = sendRandomOt();
@@ -122,13 +118,7 @@ public class NaorPinkasOt implements Ot {
   private Pair<byte[], byte[]> sendRandomOt() {
 
     ECPoint randPoint = this.curve.multiplyPoint(this.dhGenerator, randNum.nextBigInteger(dhModulus));
-    //System.out.println(randPoint.toString());
-    System.out.flush();
-    //BigInteger c = randNum.nextBigInteger(dhModulus);
-
-    network.send(otherId, this.curve.encodePoint(randPoint));
-    System.out.println(ByteAndBitConverter.bytesToHex(randPoint.encodePoint()));
-    //BigInteger publicKeyZero = new BigInteger(network.receive(otherId));
+    network.send(otherId, randPoint.clone().encodePoint());
     ECPoint publicKeyZero;
     try{
       publicKeyZero = this.curve.decodePoint(network.receive(otherId));
@@ -136,17 +126,13 @@ public class NaorPinkasOt implements Ot {
     catch (Exception e) {
       throw new RuntimeException(e);
     }
-    System.out.println(ByteAndBitConverter.bytesToHex(publicKeyZero.encodePoint()));
-    // BigInteger publicKeyOne = publicKeyZero.modInverse(dhModulus).multiply(c);
     ECPoint publicKeyOne = publicKeyZero.clone().negatePoint().addPoint(randPoint);
-    Pair<ECPoint, byte[]> zeroChoiceData = encryptRandomMessage(publicKeyZero);
-    Pair<ECPoint, byte[]> oneChoiceData = encryptRandomMessage(publicKeyOne);
-    network.send(otherId, zeroChoiceData.getFirst().encodePoint());
-    network.send(otherId, oneChoiceData.getFirst().encodePoint());
-    System.out.println(ByteAndBitConverter.bytesToHex(zeroChoiceData.getFirst().encodePoint()));
-    System.out.println(ByteAndBitConverter.bytesToHex(oneChoiceData.getFirst().encodePoint()));
+    Pair<ECPoint, byte[]> zeroChoiceData = encryptRandomMessage(publicKeyZero.clone());
+    Pair<ECPoint, byte[]> oneChoiceData = encryptRandomMessage(publicKeyOne.clone());
+    network.send(otherId, zeroChoiceData.getFirst().clone().encodePoint());
+    network.send(otherId, oneChoiceData.getFirst().clone().encodePoint());
     System.out.flush();
-    return new Pair<>(zeroChoiceData.getSecond(), oneChoiceData.getSecond());
+    return new Pair<>(zeroChoiceData.getSecond().clone(), oneChoiceData.getSecond().clone());
   }
 
   /**
@@ -156,8 +142,6 @@ public class NaorPinkasOt implements Ot {
    * @return The random message received
    */
   private byte[] receiveRandomOt(boolean choiceBit) {
-    System.out.println("in receive");
-    System.out.flush();
     ECPoint randPoint;
     try{
       randPoint = this.curve.decodePoint(network.receive(otherId));
@@ -165,28 +149,19 @@ public class NaorPinkasOt implements Ot {
     catch (Exception e) {
       throw new RuntimeException(e);
     }
-    //ECPoint privateKey = this.curve.getGenerator().multiplyPoint( randNum.nextBigInteger(dhModulus));
     BigInteger privateKey = randNum.nextBigInteger(dhModulus);
-    ECPoint publicKeySigma = this.dhGenerator.multiplyPoint(privateKey);
-    ECPoint publicKeyNotSigma = publicKeySigma.clone().negatePoint().addPoint(randPoint);
-    //BigInteger publicKeySigma = dhGenerator.modPow(privateKey, dhModulus);
-    //BigInteger publicKeyNotSigma = publicKeySigma.modInverse(dhModulus).multiply(c);
+    ECPoint publicKeySigma = this.dhGenerator.clone().multiplyPoint(privateKey);
+    ECPoint publicKeyNotSigma = publicKeySigma.clone().negatePoint().addPoint(randPoint.clone());
     if (choiceBit == false) {
-      network.send(otherId, publicKeySigma.encodePoint());
-      System.out.println(ByteAndBitConverter.bytesToHex(publicKeySigma.encodePoint()));
+      network.send(otherId, publicKeySigma.clone().encodePoint());
     } else {
-      network.send(otherId, publicKeyNotSigma.encodePoint());
-      System.out.println(ByteAndBitConverter.bytesToHex(publicKeyNotSigma.encodePoint()));
+      network.send(otherId, publicKeyNotSigma.clone().encodePoint());
     }
-    //BigInteger encZero = new BigInteger(network.receive(otherId));
-    //BigInteger encOne = new BigInteger(network.receive(otherId));
     ECPoint encZero;
     ECPoint encOne;
     try{
       encZero = this.curve.decodePoint(network.receive(otherId));
       encOne = this.curve.decodePoint(network.receive(otherId));
-      System.out.println(ByteAndBitConverter.bytesToHex(encZero.encodePoint()));
-      System.out.println(ByteAndBitConverter.bytesToHex(encOne.encodePoint()));
     }
     catch (Exception e)
     {
@@ -194,11 +169,10 @@ public class NaorPinkasOt implements Ot {
     }
     byte[] message;
     if (choiceBit == false) {
-      message = decryptRandomMessage(encZero, privateKey);
+      message = decryptRandomMessage(encZero.clone(), privateKey);
     } else {
-      message = decryptRandomMessage(encOne, privateKey);
+      message = decryptRandomMessage(encOne.clone(), privateKey);
     }
-    System.out.println(ByteAndBitConverter.bytesToHex(message));
     return message;
   }
 
@@ -215,10 +189,10 @@ public class NaorPinkasOt implements Ot {
    */
   private Pair<ECPoint, byte[]> encryptRandomMessage(ECPoint publicKey) {
     BigInteger r = randNum.nextBigInteger(dhModulus);
-    ECPoint cipherText = dhGenerator.multiplyPoint(r);
-    ECPoint toHash = this.curve.multiplyPoint(publicKey, r);
-    byte[] message = hashDigest.digest(toHash.encodePoint());
-    return new Pair<>(cipherText, message);
+    ECPoint cipherText = dhGenerator.clone().multiplyPoint(r);
+    ECPoint toHash = this.curve.multiplyPoint(publicKey.clone(), r);
+    byte[] message = hashDigest.digest(toHash.clone().encodePoint());
+    return new Pair<>(cipherText.clone(), message);
   }
 
   /**
@@ -229,8 +203,7 @@ public class NaorPinkasOt implements Ot {
    * @return The plain message
    */
   private byte[] decryptRandomMessage(ECPoint cipher, BigInteger privateKey) {
-    //BigInteger toHash = cipher.modPow(privateKey, dhModulus);
-    ECPoint toHash = this.curve.multiplyPoint(cipher, privateKey);
-    return hashDigest.digest(toHash.encodePoint());
+    ECPoint toHash = this.curve.multiplyPoint(cipher.clone(), privateKey);
+    return hashDigest.digest(toHash.clone().encodePoint());
   }
 }

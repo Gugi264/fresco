@@ -16,7 +16,7 @@ move:
 
 runSpdz:
 	cd server1 && java -jar fresco-test-demo.jar -l -e SEQUENTIAL_BATCHED -i 1 -p 1:localhost:8081 -p 2:localhost:8082 -p 3:localhost:8083 -s spdz -Dspdz.preprocessingStrategy=MASCOT -x 100 > log.txt 2>&1 &
-	#cd server2 && java -jar fresco-test-demo.jar -l -e SEQUENTIAL_BATCHED -i 2 -p 1:localhost:8081 -p 2:localhost:8082 -p 3:localhost:8083 -s spdz -Dspdz.preprocessingStrategy=MASCOT -x 30 > log.txt 2>&1 &
+	cd server2 && java -jar fresco-test-demo.jar -l -e SEQUENTIAL_BATCHED -i 2 -p 1:localhost:8081 -p 2:localhost:8082 -p 3:localhost:8083 -s spdz -Dspdz.preprocessingStrategy=MASCOT -x 30 > log.txt 2>&1 &
 	cd server3 && java -jar fresco-test-demo.jar -l -e SEQUENTIAL_BATCHED -i 3 -p 1:localhost:8081 -p 2:localhost:8082 -p 3:localhost:8083 -s spdz -Dspdz.preprocessingStrategy=MASCOT -x 20 2>&1 | tee log.txt
 
 runDummy:
