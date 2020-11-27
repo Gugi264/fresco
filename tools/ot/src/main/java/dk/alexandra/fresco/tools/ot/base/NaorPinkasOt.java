@@ -65,7 +65,6 @@ public class NaorPinkasOt implements Ot {
   @Override
   public void
   send(StrictBitVector messageZero, StrictBitVector messageOne) {
-    System.out.flush();
     int maxBitLength = Math.max(messageZero.getSize(), messageOne.getSize());
     Pair<byte[], byte[]> seedMessages = sendRandomOt();
     byte[] encryptedZeroMessage = PseudoOtp.encrypt(messageZero.toByteArray(),
@@ -116,9 +115,8 @@ public class NaorPinkasOt implements Ot {
    * @return The two random messages sent by the sender.
    */
   private Pair<byte[], byte[]> sendRandomOt() {
-
-    ECPoint randPoint = this.curve.multiplyPoint(this.dhGenerator, randNum.nextBigInteger(dhModulus));
-    network.send(otherId, randPoint.clone().encodePoint());
+    ECPoint randPoint = this.dhGenerator.clone().multiplyPoint(randNum.nextBigInteger(dhModulus));
+    network.send(otherId, randPoint.encodePoint());
     ECPoint publicKeyZero;
     try{
       publicKeyZero = this.curve.decodePoint(network.receive(otherId));
@@ -129,10 +127,9 @@ public class NaorPinkasOt implements Ot {
     ECPoint publicKeyOne = publicKeyZero.clone().negatePoint().addPoint(randPoint);
     Pair<ECPoint, byte[]> zeroChoiceData = encryptRandomMessage(publicKeyZero.clone());
     Pair<ECPoint, byte[]> oneChoiceData = encryptRandomMessage(publicKeyOne.clone());
-    network.send(otherId, zeroChoiceData.getFirst().clone().encodePoint());
-    network.send(otherId, oneChoiceData.getFirst().clone().encodePoint());
-    System.out.flush();
-    return new Pair<>(zeroChoiceData.getSecond().clone(), oneChoiceData.getSecond().clone());
+    network.send(otherId, zeroChoiceData.getFirst().encodePoint());
+    network.send(otherId, oneChoiceData.getFirst().encodePoint());
+    return new Pair<>(zeroChoiceData.getSecond(), oneChoiceData.getSecond());
   }
 
   /**
@@ -153,9 +150,9 @@ public class NaorPinkasOt implements Ot {
     ECPoint publicKeySigma = this.dhGenerator.clone().multiplyPoint(privateKey);
     ECPoint publicKeyNotSigma = publicKeySigma.clone().negatePoint().addPoint(randPoint.clone());
     if (choiceBit == false) {
-      network.send(otherId, publicKeySigma.clone().encodePoint());
+      network.send(otherId, publicKeySigma.encodePoint());
     } else {
-      network.send(otherId, publicKeyNotSigma.clone().encodePoint());
+      network.send(otherId, publicKeyNotSigma.encodePoint());
     }
     ECPoint encZero;
     ECPoint encOne;
@@ -169,9 +166,9 @@ public class NaorPinkasOt implements Ot {
     }
     byte[] message;
     if (choiceBit == false) {
-      message = decryptRandomMessage(encZero.clone(), privateKey);
+      message = decryptRandomMessage(encZero, privateKey);
     } else {
-      message = decryptRandomMessage(encOne.clone(), privateKey);
+      message = decryptRandomMessage(encOne, privateKey);
     }
     return message;
   }
@@ -190,9 +187,9 @@ public class NaorPinkasOt implements Ot {
   private Pair<ECPoint, byte[]> encryptRandomMessage(ECPoint publicKey) {
     BigInteger r = randNum.nextBigInteger(dhModulus);
     ECPoint cipherText = dhGenerator.clone().multiplyPoint(r);
-    ECPoint toHash = this.curve.multiplyPoint(publicKey.clone(), r);
-    byte[] message = hashDigest.digest(toHash.clone().encodePoint());
-    return new Pair<>(cipherText.clone(), message);
+    ECPoint toHash = this.curve.multiplyPoint(publicKey, r);
+    byte[] message = hashDigest.digest(toHash.encodePoint());
+    return new Pair<>(cipherText, message);
   }
 
   /**
@@ -203,7 +200,7 @@ public class NaorPinkasOt implements Ot {
    * @return The plain message
    */
   private byte[] decryptRandomMessage(ECPoint cipher, BigInteger privateKey) {
-    ECPoint toHash = this.curve.multiplyPoint(cipher.clone(), privateKey);
+    ECPoint toHash = cipher.clone().multiplyPoint(privateKey);
     return hashDigest.digest(toHash.clone().encodePoint());
   }
 }
