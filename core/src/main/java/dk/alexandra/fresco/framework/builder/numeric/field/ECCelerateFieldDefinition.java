@@ -2,9 +2,7 @@ package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import iaik.security.ec.math.field.AbstractPrimeField;
-import iaik.security.ec.math.field.Field;
 import iaik.security.ec.math.field.PrimeFieldByPrimeFactory;
-import iaik.security.ec.provider.ECCelerate;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

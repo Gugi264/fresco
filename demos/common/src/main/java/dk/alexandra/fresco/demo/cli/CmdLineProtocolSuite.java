@@ -45,6 +45,8 @@ import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import iaik.security.ec.provider.ECCelerate;
+import iaik.security.ec.provider.OptimizationLevel;
+
 import java.io.File;
 import java.math.BigInteger;
 import java.util.*;
@@ -149,6 +151,7 @@ public class CmdLineProtocolSuite {
     final int modBitLength = Integer.parseInt(properties.getProperty("spdz.modBitLength", "128"));
     final BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
     ECCelerate.addAsProvider();
+    ECCelerate.setOptimizationLevel(OptimizationLevel.FULL_SPEED);
     final ECCelerateFieldDefinition definition = new ECCelerateFieldDefinition(modulus);
     SpdzDataSupplier supplier = null;
 

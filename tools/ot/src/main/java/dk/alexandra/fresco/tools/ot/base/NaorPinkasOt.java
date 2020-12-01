@@ -13,6 +13,8 @@ import iaik.security.ec.math.curve.PrimeMontgomeryCurveFactory;
 import iaik.security.ec.math.field.AbstractPrimeField;
 import iaik.security.ec.math.field.PrimeFieldByPrimeFactory;
 import iaik.security.ec.math.field.PrimeFieldElement;
+import iaik.security.ec.provider.ECCelerate;
+import iaik.security.ec.provider.OptimizationLevel;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -187,7 +189,7 @@ public class NaorPinkasOt implements Ot {
   private Pair<ECPoint, byte[]> encryptRandomMessage(ECPoint publicKey) {
     BigInteger r = randNum.nextBigInteger(dhModulus);
     ECPoint cipherText = dhGenerator.clone().multiplyPoint(r);
-    ECPoint toHash = this.curve.multiplyPoint(publicKey, r);
+    ECPoint toHash = publicKey.multiplyPoint(r);
     byte[] message = hashDigest.digest(toHash.encodePoint());
     return new Pair<>(cipherText, message);
   }
