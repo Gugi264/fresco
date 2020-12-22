@@ -23,7 +23,6 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.SpdzExponentiationPipeProtocol;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
@@ -45,10 +44,11 @@ import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import iaik.security.ec.provider.ECCelerate;
-import iaik.security.ec.provider.OptimizationLevel;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.File;
 import java.math.BigInteger;
+import java.security.Security;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -150,8 +150,9 @@ public class CmdLineProtocolSuite {
 
     final int modBitLength = Integer.parseInt(properties.getProperty("spdz.modBitLength", "128"));
     final BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
+    Security.addProvider(new BouncyCastleProvider());
     ECCelerate.addAsProvider();
-    ECCelerate.setOptimizationLevel(OptimizationLevel.FULL_SPEED);
+    //ECCelerate.setOptimizationLevel(OptimizationLevel.FULL_SPEED);
     final ECCelerateFieldDefinition definition = new ECCelerateFieldDefinition(modulus);
     SpdzDataSupplier supplier = null;
 

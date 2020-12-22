@@ -27,8 +27,7 @@ public final class ECCelerateFieldDefinition implements FieldDefinition {
 
   @Override
   public FieldElement createElement(String value) {
-    System.out.println("create element with string not implemented");
-    return null;
+    return createElement(new BigInteger(value));
   }
 
   @Override

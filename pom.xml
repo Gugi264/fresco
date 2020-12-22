@@ -54,6 +54,11 @@
 			<artifactId>jce</artifactId>
 			<version>1.03</version>
 		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpkix-jdk15on</artifactId>
+			<version>1.67</version>
+		</dependency>
 		<!-- logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
