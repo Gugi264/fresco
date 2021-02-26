@@ -52,7 +52,7 @@ public class TestFunctionalNaorPinkas {
         new CheatingNetworkDecorator(new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
-      Ot otSender = new BigIntNaorPinkas(2, rand, network, staticParams);
+      Ot otSender = new ECCNaorPinkas(2, rand, network, staticParams);
       List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(iterations);
       for (int i = 0; i < iterations; i++) {
         StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
@@ -72,7 +72,7 @@ public class TestFunctionalNaorPinkas {
         new CheatingNetworkDecorator(new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
-      Ot otReceiver = new BigIntNaorPinkas(1, rand, network, staticParams);
+      Ot otReceiver = new ECCNaorPinkas(1, rand, network, staticParams);
       List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
       for (int i = 0; i < choices.getSize(); i++) {
         StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
@@ -93,7 +93,7 @@ public class TestFunctionalNaorPinkas {
   @Test
   public void testNaorPinkasOt() throws Exception {
     // We execute 24 OTs
-    int iterations = 1000 ;
+    int iterations = 24;
     Drbg rand = new AesCtrDrbg(HelperForTests.seedThree);
     StrictBitVector choices = new StrictBitVector(iterations, rand);
     Callable<List<?>> partyOneOt = () -> otSend(iterations);
@@ -146,7 +146,7 @@ public class TestFunctionalNaorPinkas {
             new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
-      Ot otSender = new BigIntNaorPinkas(2, rand, network, staticParams);
+      Ot otSender = new ECCNaorPinkas(2, rand, network, staticParams);
       StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
       StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
       // Send a wrong random value c, than what is actually used
@@ -167,7 +167,7 @@ public class TestFunctionalNaorPinkas {
             new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
-      Ot otReceiver = new BigIntNaorPinkas(1, rand, network, staticParams);
+      Ot otReceiver = new ECCNaorPinkas(1, rand, network, staticParams);
       StrictBitVector message = otReceiver.receive(choice);
       List<StrictBitVector> messageList = new ArrayList<>(1);
       messageList.add(message);
