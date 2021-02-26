@@ -5,14 +5,15 @@ import javax.crypto.spec.DHParameterSpec;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
+import dk.alexandra.fresco.tools.ot.base.AbstractNaorPinkasOT;
+import dk.alexandra.fresco.tools.ot.base.ECCNaorPinkas;
 
 public class TinyTablesNaorPinkasOt implements TinyTablesOt {
 
   private final int otherId;
   private final Drbg random;
   private final DHParameterSpec params;
-  private NaorPinkasOt ot;
+  private AbstractNaorPinkasOT ot;
 
   /**
    * Constructs a Naor-Pinkas OT instance using prespecified Diffie-Hellman parameters.
@@ -29,7 +30,7 @@ public class TinyTablesNaorPinkasOt implements TinyTablesOt {
 
   @Override
   public void init(Network network) {
-    ot = new NaorPinkasOt(otherId, random, network, params);
+    ot = new ECCNaorPinkas(otherId, random, network, params);
   }
 
   @Override

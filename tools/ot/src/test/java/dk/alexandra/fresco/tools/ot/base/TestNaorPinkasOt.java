@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestNaorPinkasOt {
-  private NaorPinkasOt ot;
+  private AbstractNaorPinkasOT ot;
   private Method encryptMessage;
   private Method decryptMessage;
   private Drng randNum;
@@ -53,12 +53,12 @@ public class TestNaorPinkasOt {
       }
     };
     staticSpec = DhParameters.getStaticDhParams();
-    this.ot = new NaorPinkasOt(2, randBit, network, staticSpec);
+    this.ot = new ECCNaorPinkas(2, randBit, network, staticSpec);
     // Change visibility of private methods so they can be tested
     this.encryptMessage =
-        NaorPinkasOt.class.getDeclaredMethod("encryptRandomMessage", BigInteger.class);
+        ECCNaorPinkas.class.getDeclaredMethod("encryptRandomMessage", BigInteger.class);
     this.encryptMessage.setAccessible(true);
-    this.decryptMessage = NaorPinkasOt.class.getDeclaredMethod("decryptRandomMessage",
+    this.decryptMessage = ECCNaorPinkas.class.getDeclaredMethod("decryptRandomMessage",
         BigInteger.class, BigInteger.class);
     this.decryptMessage.setAccessible(true);
   }

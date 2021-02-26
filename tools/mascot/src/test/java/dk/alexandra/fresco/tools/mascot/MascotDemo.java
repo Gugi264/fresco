@@ -14,7 +14,7 @@ import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.ot.base.DhParameters;
-import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
+import dk.alexandra.fresco.tools.ot.base.ECCNaorPinkas;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.io.Closeable;
@@ -77,7 +77,7 @@ public class MascotDemo {
     for (int otherId = 1; otherId <= noOfParties; otherId++) {
       if (myId != otherId) {
         DHParameterSpec dhSpec = DhParameters.getStaticDhParams();
-        Ot ot = new NaorPinkasOt(otherId, drbg, network, dhSpec);
+        Ot ot = new ECCNaorPinkas(otherId, drbg, network, dhSpec);
         RotList currentSeedOts = new RotList(drbg, parameters.getPrgSeedLength());
         if (myId < otherId) {
           currentSeedOts.send(ot);

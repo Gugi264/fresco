@@ -39,9 +39,7 @@ import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesOt;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
-import dk.alexandra.fresco.tools.ot.base.DhParameters;
-import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
-import dk.alexandra.fresco.tools.ot.base.Ot;
+import dk.alexandra.fresco.tools.ot.base.*;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import iaik.security.ec.provider.ECCelerate;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -237,7 +235,7 @@ public class CmdLineProtocolSuite {
     for (int otherId = 1; otherId <= parties; otherId++) {
       if (myId != otherId) {
         DHParameterSpec dhSpec = DhParameters.getStaticDhParams();
-        Ot ot = new NaorPinkasOt(otherId, drbg, network, dhSpec);
+        Ot ot = new ECCNaorPinkas(otherId, drbg, network, dhSpec);
         RotList currentSeedOts = new RotList(drbg, prgSeedLength);
         if (myId < otherId) {
           currentSeedOts.send(ot);
