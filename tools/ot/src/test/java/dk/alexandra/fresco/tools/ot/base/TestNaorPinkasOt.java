@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestNaorPinkasOt {
-  private AbstractNaorPinkasOT ot;
+  private ECCNaorPinkas ot;
   private Method encryptMessage;
   private Method decryptMessage;
   private Drng randNum;
@@ -55,11 +55,9 @@ public class TestNaorPinkasOt {
     staticSpec = DhParameters.getStaticDhParams();
     this.ot = new ECCNaorPinkas(2, randBit, network, staticSpec);
     // Change visibility of private methods so they can be tested
-    this.encryptMessage =
-        ECCNaorPinkas.class.getDeclaredMethod("encryptRandomMessage", BigInteger.class);
+    this.encryptMessage = getMethodFromAbstractClass("encryptRandomMessage");
     this.encryptMessage.setAccessible(true);
-    this.decryptMessage = ECCNaorPinkas.class.getDeclaredMethod("decryptRandomMessage",
-        BigInteger.class, BigInteger.class);
+    this.decryptMessage = getMethodFromAbstractClass("decryptRandomMessage");
     this.decryptMessage.setAccessible(true);
   }
 
@@ -70,9 +68,9 @@ public class TestNaorPinkasOt {
   public void testEncDec()
       throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     BigInteger privateKey = randNum.nextBigInteger(staticSpec.getP());
-    BigInteger publicKey = staticSpec.getG().modPow(privateKey, staticSpec.getP());
-    Pair<BigInteger, byte[]> encryptionData =
-        (Pair<BigInteger, byte[]>) encryptMessage.invoke(ot, publicKey);
+    AbstractNaorPinkasElement publicKey = ot.getDhGenerator().multiply(privateKey);
+    Pair<AbstractNaorPinkasElement, byte[]> encryptionData =
+        (Pair<AbstractNaorPinkasElement, byte[]>) encryptMessage.invoke(ot, publicKey);
     byte[] message = encryptionData.getSecond();
     // Sanity check that the byte array gets initialized, i.e. is not the 0-array
     assertFalse(Arrays.equals(new byte[32], message));
@@ -87,9 +85,9 @@ public class TestNaorPinkasOt {
   public void testFailedEncDec()
       throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     BigInteger privateKey = randNum.nextBigInteger(staticSpec.getP());
-    BigInteger publicKey = staticSpec.getG().modPow(privateKey, staticSpec.getP());
-    Pair<BigInteger, byte[]> encryptionData =
-        (Pair<BigInteger, byte[]>) encryptMessage.invoke(ot, publicKey);
+    AbstractNaorPinkasElement publicKey = ot.getDhGenerator().multiply(privateKey);
+    Pair<AbstractNaorPinkasElement, byte[]> encryptionData =
+        (Pair<AbstractNaorPinkasElement, byte[]>) encryptMessage.invoke(ot, publicKey);
     byte[] message = encryptionData.getSecond();
     // Sanity check that the byte array gets initialized, i.e. is not the 0-array
     assertEquals(32, message.length);
@@ -103,8 +101,7 @@ public class TestNaorPinkasOt {
   @Test
   public void testUnequalLengthMessages() throws SecurityException, IllegalArgumentException,
   IllegalAccessException, NoSuchMethodException {
-    Method method = ot.getClass().getDeclaredMethod("recoverTrueMessage", byte[].class,
-        byte[].class, byte[].class, boolean.class);
+    Method method = getMethodFromAbstractClass("recoverTrueMessage");
     // Remove private
     method.setAccessible(true);
     boolean thrown = false;
@@ -116,5 +113,21 @@ public class TestNaorPinkasOt {
       thrown = true;
     }
     assertTrue(thrown);
+  }
+
+
+  private Method getMethodFromAbstractClass(String methodToSearch) {
+    Class<?> clazz = ECCNaorPinkas.class;
+    while (clazz != null) {
+      Method[] methods = clazz.getDeclaredMethods();
+      for (Method method : methods) {
+        // Test any other things about it beyond the name...
+        if (method.getName().equals(methodToSearch)) {
+          return method;
+        }
+      }
+      clazz = clazz.getSuperclass();
+    }
+    return null;
   }
 }
