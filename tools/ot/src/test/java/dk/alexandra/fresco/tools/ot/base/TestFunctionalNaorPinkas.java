@@ -17,18 +17,39 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.crypto.spec.DHParameterSpec;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 
+@RunWith(Parameterized.class)
 public class TestFunctionalNaorPinkas {
 
   private RuntimeForTests testRuntime;
   private int messageLength = 1024;
   private DHParameterSpec staticParams;
+
+  @Parameters
+  public static Collection instancesToTest() {
+    List<Object> implementations = new ArrayList<>();
+    implementations.add(new Object[]{ECCNaorPinkas.class});
+    implementations.add(new Object[]{BigIntElement.class});
+    return implementations;
+  }
+
+  @Parameter
+  public AbstractNaorPinkasOT myNaorPinkas;
+
+  public TestFunctionalNaorPinkas(AbstractNaorPinkasOT naorPinkasOT) {
+    this.myNaorPinkas = naorPinkasOT;
+  }
 
   /**
    * Initializes the test runtime and constructs loads preconstructed Diffe-Hellman parameters.
@@ -150,7 +171,8 @@ public class TestFunctionalNaorPinkas {
       StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
       StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
       // Send a wrong random value c, than what is actually used
-      ((CheatingNetworkDecorator) network).cheatInNextMessage(0, 0);
+      // byte on position 0 in encoded EcPoint only specifies Compression
+      ((CheatingNetworkDecorator) network).cheatInNextMessage(0, 1);
       otSender.send(msgZero, msgOne);
       List<StrictBitVector> messages = new ArrayList<>(2);
       messages.add(msgZero);
