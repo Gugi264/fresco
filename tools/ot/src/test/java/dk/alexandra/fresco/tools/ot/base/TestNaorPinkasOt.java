@@ -12,20 +12,41 @@ import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collection;
 import javax.crypto.spec.DHParameterSpec;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
+@RunWith(Parameterized.class)
 public class TestNaorPinkasOt {
-  private ECCNaorPinkas ot;
+
+  @Parameters
+  public static Collection<Object[]> data() {
+    return Arrays.asList(new Object[][] {
+        { ECCNaorPinkas.class}, { BigIntNaorPinkas.class }
+    });
+  }
+
+  private AbstractNaorPinkasOT ot;
   private Method encryptMessage;
   private Method decryptMessage;
   private Drng randNum;
   private DHParameterSpec staticSpec;
+
+
+  private Class testClass;
+
+  public TestNaorPinkasOt(Class testClass) {
+    this.testClass = testClass;
+  }
 
   /**
    * Construct a NaorPinkasOt instance based on some static Diffie-Hellman parameters.
@@ -34,7 +55,8 @@ public class TestNaorPinkasOt {
    * @throws NoSuchMethodException Thrown if it is not possible to change private method visibility
    */
   @Before
-  public void setup() throws NoSuchMethodException, SecurityException {
+  public void setup()
+      throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException, InstantiationException {
     Drbg randBit = new AesCtrDrbg(HelperForTests.seedOne);
     randNum = new DrngImpl(randBit);
     // fake network
@@ -53,7 +75,10 @@ public class TestNaorPinkasOt {
       }
     };
     staticSpec = DhParameters.getStaticDhParams();
-    this.ot = new ECCNaorPinkas(2, randBit, network, staticSpec);
+    Class clazz = this.testClass;
+    Constructor[] constructors = clazz.getConstructors();
+    this.ot = (AbstractNaorPinkasOT) constructors[0]
+        .newInstance(2, randBit, network, staticSpec);
     // Change visibility of private methods so they can be tested
     this.encryptMessage = getMethodFromAbstractClass("encryptRandomMessage");
     this.encryptMessage.setAccessible(true);
@@ -117,7 +142,7 @@ public class TestNaorPinkasOt {
 
 
   private Method getMethodFromAbstractClass(String methodToSearch) {
-    Class<?> clazz = ECCNaorPinkas.class;
+    Class<?> clazz = this.testClass;
     while (clazz != null) {
       Method[] methods = clazz.getDeclaredMethods();
       for (Method method : methods) {

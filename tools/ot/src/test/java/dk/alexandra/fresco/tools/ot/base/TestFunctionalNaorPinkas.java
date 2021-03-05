@@ -36,6 +36,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class TestFunctionalNaorPinkas {
+
   @Parameters
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][] {
