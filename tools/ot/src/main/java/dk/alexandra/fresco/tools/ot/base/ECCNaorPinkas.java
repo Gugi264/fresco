@@ -42,7 +42,7 @@ public class ECCNaorPinkas extends AbstractNaorPinkasOT{
             tmp = this.curve.decodePoint(bytes);
         }
         catch (Exception e) {
-            throw new RuntimeException(e.toString());
+            throw new RuntimeException("Error decoding Element in ECCNaorPinkas");
         }
         return new ECCElement(tmp);
 

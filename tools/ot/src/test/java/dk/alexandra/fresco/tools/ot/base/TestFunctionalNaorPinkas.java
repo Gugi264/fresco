@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.ot.base;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
@@ -15,15 +16,19 @@ import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.otextension.CheatingNetworkDecorator;
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.crypto.spec.DHParameterSpec;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.KeyFactorySpi.EC;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.theories.suppliers.TestedOn;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
@@ -31,28 +36,25 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class TestFunctionalNaorPinkas {
+  @Parameters
+  public static Collection<Object[]> data() {
+    return Arrays.asList(new Object[][] {
+        { ECCNaorPinkas.class}, { BigIntNaorPinkas.class }
+    });
+  }
 
   private RuntimeForTests testRuntime;
   private int messageLength = 1024;
   private DHParameterSpec staticParams;
+  private Class testClass;
 
-  @Parameters
-  public static Collection instancesToTest() {
-    List<Object> implementations = new ArrayList<>();
-    implementations.add(new Object[]{ECCNaorPinkas.class});
-    implementations.add(new Object[]{BigIntElement.class});
-    return implementations;
+  public TestFunctionalNaorPinkas(Class testClass) {
+    this.testClass = testClass;
   }
 
-  @Parameter
-  public AbstractNaorPinkasOT myNaorPinkas;
-
-  public TestFunctionalNaorPinkas(AbstractNaorPinkasOT naorPinkasOT) {
-    this.myNaorPinkas = naorPinkasOT;
-  }
 
   /**
-   * Initializes the test runtime and constructs loads preconstructed Diffe-Hellman parameters.
+   * Initializes the test runtime and constructs loads pre-constructed Diffie-Hellman parameters.
    */
   @Before
   public void initializeRuntime() throws Exception {
@@ -73,7 +75,10 @@ public class TestFunctionalNaorPinkas {
         new CheatingNetworkDecorator(new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
-      Ot otSender = new ECCNaorPinkas(2, rand, network, staticParams);
+      Class clazz = this.testClass;
+      Constructor[] constructors = clazz.getConstructors();
+      Ot otSender = (AbstractNaorPinkasOT) constructors[0]
+          .newInstance(2, rand, network, staticParams);
       List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(iterations);
       for (int i = 0; i < iterations; i++) {
         StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
@@ -93,7 +98,10 @@ public class TestFunctionalNaorPinkas {
         new CheatingNetworkDecorator(new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
-      Ot otReceiver = new ECCNaorPinkas(1, rand, network, staticParams);
+      Class clazz = this.testClass;
+      Constructor[] constructors = clazz.getConstructors();
+      Ot otReceiver = (AbstractNaorPinkasOT) constructors[0]
+          .newInstance(1, rand, network, staticParams);
       List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
       for (int i = 0; i < choices.getSize(); i++) {
         StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
@@ -167,7 +175,10 @@ public class TestFunctionalNaorPinkas {
             new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
-      Ot otSender = new ECCNaorPinkas(2, rand, network, staticParams);
+      Class clazz = this.testClass;
+      Constructor[] constructors = clazz.getConstructors();
+      Ot otSender = (AbstractNaorPinkasOT) constructors[0]
+          .newInstance(2, rand, network, staticParams);
       StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
       StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
       // Send a wrong random value c, than what is actually used
@@ -178,9 +189,12 @@ public class TestFunctionalNaorPinkas {
       messages.add(msgZero);
       messages.add(msgOne);
       return messages;
+    } catch (IllegalAccessException | InstantiationException | InvocationTargetException  e) {
+      e.printStackTrace();
     } finally {
       ((Closeable) network).close();
     }
+    return null;
   }
 
   private List<StrictBitVector> otReceiveCheat(boolean choice) throws IOException {
@@ -189,14 +203,20 @@ public class TestFunctionalNaorPinkas {
             new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
-      Ot otReceiver = new ECCNaorPinkas(1, rand, network, staticParams);
+      Class clazz = this.testClass;
+      Constructor[] constructors = clazz.getConstructors();
+      Ot otReceiver = (AbstractNaorPinkasOT) constructors[0]
+          .newInstance(1, rand, network, staticParams);
       StrictBitVector message = otReceiver.receive(choice);
       List<StrictBitVector> messageList = new ArrayList<>(1);
       messageList.add(message);
       return messageList;
+    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+      e.printStackTrace();
     } finally {
       ((Closeable) network).close();
     }
+    return null;
   }
 
   /**
@@ -210,13 +230,30 @@ public class TestFunctionalNaorPinkas {
     Callable<List<StrictBitVector>> partyOneInit = () -> otSendCheat();
     Callable<List<StrictBitVector>> partyTwoInit = () -> otReceiveCheat(choice);
     // run tasks and get ordered list of results
-    List<List<StrictBitVector>> results =
-        testRuntime.runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
-    List<StrictBitVector> senderResults = results.get(0);
-    StrictBitVector receiverResult = results.get(1).get(0);
-    // Verify that the Both messages of the sender is different from the message
-    // the receiver got
-    assertNotEquals(senderResults.get(0), receiverResult);
-    assertNotEquals(senderResults.get(1), receiverResult);
+    if (this.testClass == ECCNaorPinkas.class) {
+      // if you cheat in ECCNaorPinkas, the cheated Message is not a valid point on the curve anymore
+      // so it should throw an exception
+      try {
+        List<List<StrictBitVector>> results =
+            testRuntime.runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
+        List<StrictBitVector> senderResults = results.get(0);
+        fail();
+      }
+      catch (RuntimeException e) {
+
+      }
+    }
+    else
+    {
+      List<List<StrictBitVector>> results =
+          testRuntime.runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
+      List<StrictBitVector> senderResults = results.get(0);
+      StrictBitVector receiverResult = results.get(1).get(0);
+      // Verify that the Both messages of the sender is different from the message
+      // the receiver got
+      assertNotEquals(senderResults.get(0), receiverResult);
+      assertNotEquals(senderResults.get(1), receiverResult);
+    }
+
   }
 }
