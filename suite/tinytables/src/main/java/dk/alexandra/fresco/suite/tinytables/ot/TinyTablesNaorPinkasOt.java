@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.AbstractNaorPinkasOT;
+import dk.alexandra.fresco.tools.ot.base.BigIntNaorPinkas;
 import dk.alexandra.fresco.tools.ot.base.ECCNaorPinkas;
 
 public class TinyTablesNaorPinkasOt implements TinyTablesOt {
@@ -16,7 +17,7 @@ public class TinyTablesNaorPinkasOt implements TinyTablesOt {
   private AbstractNaorPinkasOT ot;
 
   /**
-   * Constructs a Naor-Pinkas OT instance using prespecified Diffie-Hellman parameters.
+   * Constructs a Naor-Pinkas OT instance using pre-specified Diffie-Hellman parameters.
    *
    * @param otherId The ID of the other party
    * @param random The calling party's secure randomness generator

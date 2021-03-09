@@ -65,7 +65,8 @@ public abstract class AbstractNaorPinkasOT implements Ot {
     private Pair<byte[], byte[]> sendRandomOt() {
         AbstractNaorPinkasElement randPoint = this.generateRandomNaorPinkasElement();
         network.send(otherId, randPoint.toByteArray());
-        AbstractNaorPinkasElement publicKeyZero = this.decodeElement(network.receive(otherId));
+        byte[] tmp = network.receive(otherId);
+        AbstractNaorPinkasElement publicKeyZero = this.decodeElement(tmp);
         AbstractNaorPinkasElement publicKeyOne = publicKeyZero.inverse().groupOp(randPoint);
         Pair<AbstractNaorPinkasElement, byte[]> zeroChoiceData = encryptRandomMessage(publicKeyZero);
         Pair<AbstractNaorPinkasElement, byte[]> oneChoiceData = encryptRandomMessage(publicKeyOne);
