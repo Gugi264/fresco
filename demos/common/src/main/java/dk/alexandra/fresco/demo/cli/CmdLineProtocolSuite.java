@@ -235,7 +235,7 @@ public class CmdLineProtocolSuite {
     for (int otherId = 1; otherId <= parties; otherId++) {
       if (myId != otherId) {
         DHParameterSpec dhSpec = DhParameters.getStaticDhParams();
-        Ot ot = new ECCNaorPinkas(otherId, drbg, network, dhSpec);
+        Ot ot = new BouncyCastleNaorPinkas(otherId, drbg, network, dhSpec);
         RotList currentSeedOts = new RotList(drbg, prgSeedLength);
         if (myId < otherId) {
           currentSeedOts.send(ot);

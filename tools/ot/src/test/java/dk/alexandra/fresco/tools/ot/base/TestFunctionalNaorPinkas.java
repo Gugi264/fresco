@@ -40,7 +40,7 @@ public class TestFunctionalNaorPinkas {
   @Parameters
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][] {
-        { ECCNaorPinkas.class}, { BigIntNaorPinkas.class }
+        { ECCNaorPinkas.class}, { BigIntNaorPinkas.class }, {BouncyCastleNaorPinkas.class}
     });
   }
 
@@ -231,9 +231,9 @@ public class TestFunctionalNaorPinkas {
     Callable<List<StrictBitVector>> partyOneInit = () -> otSendCheat();
     Callable<List<StrictBitVector>> partyTwoInit = () -> otReceiveCheat(choice);
     // run tasks and get ordered list of results
-    if (this.testClass == ECCNaorPinkas.class) {
-      // if you cheat in ECCNaorPinkas, the cheated Message is not a valid point on the curve anymore
-      // so it should throw an exception
+    if (this.testClass == ECCNaorPinkas.class || this.testClass == BouncyCastleNaorPinkas.class ) {
+      // if you cheat in ECCNaorPinkas | BouncyCastleNaorPinkas, the cheated Message is not
+      // a valid point on the curve anymore so it should throw an exception
       try {
         List<List<StrictBitVector>> results =
             testRuntime.runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
