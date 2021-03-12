@@ -39,8 +39,8 @@ public class TestFunctionalNaorPinkas {
 
   @Parameters
   public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[][] {
-        { ECCNaorPinkas.class}, { BigIntNaorPinkas.class }, {BouncyCastleNaorPinkas.class}
+    return Arrays.asList(new Object[][]{
+        {ECCNaorPinkas.class}, {BigIntNaorPinkas.class}, {BouncyCastleNaorPinkas.class}
     });
   }
 
@@ -73,13 +73,14 @@ public class TestFunctionalNaorPinkas {
 
   private List<Pair<StrictBitVector, StrictBitVector>> otSend(int iterations) throws Exception {
     Network network =
-        new CheatingNetworkDecorator(new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2))));
+        new CheatingNetworkDecorator(
+            new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
       Class clazz = this.testClass;
       Constructor[] constructors = clazz.getConstructors();
       Ot otSender = (AbstractNaorPinkasOT) constructors[0]
-          .newInstance(2, rand, network, staticParams);
+          .newInstance(2, rand, network);
       List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(iterations);
       for (int i = 0; i < iterations; i++) {
         StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
@@ -96,13 +97,14 @@ public class TestFunctionalNaorPinkas {
 
   private List<StrictBitVector> otReceive(StrictBitVector choices) throws Exception {
     Network network =
-        new CheatingNetworkDecorator(new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2))));
+        new CheatingNetworkDecorator(
+            new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
       Class clazz = this.testClass;
       Constructor[] constructors = clazz.getConstructors();
       Ot otReceiver = (AbstractNaorPinkasOT) constructors[0]
-          .newInstance(1, rand, network, staticParams);
+          .newInstance(1, rand, network);
       List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
       for (int i = 0; i < choices.getSize(); i++) {
         StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
@@ -179,7 +181,7 @@ public class TestFunctionalNaorPinkas {
       Class clazz = this.testClass;
       Constructor[] constructors = clazz.getConstructors();
       Ot otSender = (AbstractNaorPinkasOT) constructors[0]
-          .newInstance(2, rand, network, staticParams);
+          .newInstance(2, rand, network);
       StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
       StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
       // Send a wrong random value c, than what is actually used
@@ -190,7 +192,7 @@ public class TestFunctionalNaorPinkas {
       messages.add(msgZero);
       messages.add(msgOne);
       return messages;
-    } catch (IllegalAccessException | InstantiationException | InvocationTargetException  e) {
+    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
       e.printStackTrace();
     } finally {
       ((Closeable) network).close();
@@ -207,7 +209,7 @@ public class TestFunctionalNaorPinkas {
       Class clazz = this.testClass;
       Constructor[] constructors = clazz.getConstructors();
       Ot otReceiver = (AbstractNaorPinkasOT) constructors[0]
-          .newInstance(1, rand, network, staticParams);
+          .newInstance(1, rand, network);
       StrictBitVector message = otReceiver.receive(choice);
       List<StrictBitVector> messageList = new ArrayList<>(1);
       messageList.add(message);
@@ -231,7 +233,7 @@ public class TestFunctionalNaorPinkas {
     Callable<List<StrictBitVector>> partyOneInit = () -> otSendCheat();
     Callable<List<StrictBitVector>> partyTwoInit = () -> otReceiveCheat(choice);
     // run tasks and get ordered list of results
-    if (this.testClass == ECCNaorPinkas.class || this.testClass == BouncyCastleNaorPinkas.class ) {
+    if (this.testClass == ECCNaorPinkas.class || this.testClass == BouncyCastleNaorPinkas.class) {
       // if you cheat in ECCNaorPinkas | BouncyCastleNaorPinkas, the cheated Message is not
       // a valid point on the curve anymore so it should throw an exception
       try {
@@ -239,13 +241,10 @@ public class TestFunctionalNaorPinkas {
             testRuntime.runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
         List<StrictBitVector> senderResults = results.get(0);
         fail();
-      }
-      catch (RuntimeException e) {
+      } catch (RuntimeException e) {
 
       }
-    }
-    else
-    {
+    } else {
       List<List<StrictBitVector>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
       List<StrictBitVector> senderResults = results.get(0);

@@ -78,7 +78,7 @@ public class TestNaorPinkasOt {
     Class clazz = this.testClass;
     Constructor[] constructors = clazz.getConstructors();
     this.ot = (AbstractNaorPinkasOT) constructors[0]
-        .newInstance(2, randBit, network, staticSpec);
+        .newInstance(2, randBit, network);
     // Change visibility of private methods so they can be tested
     this.encryptMessage = getMethodFromAbstractClass("encryptRandomMessage");
     this.encryptMessage.setAccessible(true);
