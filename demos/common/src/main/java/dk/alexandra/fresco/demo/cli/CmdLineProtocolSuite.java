@@ -234,8 +234,7 @@ public class CmdLineProtocolSuite {
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (int otherId = 1; otherId <= parties; otherId++) {
       if (myId != otherId) {
-        DHParameterSpec dhSpec = DhParameters.getStaticDhParams();
-        Ot ot = new BouncyCastleNaorPinkas(otherId, drbg, network, dhSpec);
+        Ot ot = new ECCNaorPinkas(otherId, drbg, network);
         RotList currentSeedOts = new RotList(drbg, prgSeedLength);
         if (myId < otherId) {
           currentSeedOts.send(ot);

@@ -76,8 +76,7 @@ public class MascotDemo {
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (int otherId = 1; otherId <= noOfParties; otherId++) {
       if (myId != otherId) {
-        DHParameterSpec dhSpec = DhParameters.getStaticDhParams();
-        Ot ot = new ECCNaorPinkas(otherId, drbg, network, dhSpec);
+        Ot ot = new ECCNaorPinkas(otherId, drbg, network);
         RotList currentSeedOts = new RotList(drbg, parameters.getPrgSeedLength());
         if (myId < otherId) {
           currentSeedOts.send(ot);

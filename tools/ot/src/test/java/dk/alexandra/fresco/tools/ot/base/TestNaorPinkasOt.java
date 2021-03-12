@@ -93,9 +93,9 @@ public class TestNaorPinkasOt {
   public void testEncDec()
       throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     BigInteger privateKey = randNum.nextBigInteger(staticSpec.getP());
-    AbstractNaorPinkasElement publicKey = ot.getDhGenerator().multiply(privateKey);
-    Pair<AbstractNaorPinkasElement, byte[]> encryptionData =
-        (Pair<AbstractNaorPinkasElement, byte[]>) encryptMessage.invoke(ot, publicKey);
+    InterfaceNaorPinkasElement publicKey = ot.getDhGenerator().multiply(privateKey);
+    Pair<InterfaceNaorPinkasElement, byte[]> encryptionData =
+        (Pair<InterfaceNaorPinkasElement, byte[]>) encryptMessage.invoke(ot, publicKey);
     byte[] message = encryptionData.getSecond();
     // Sanity check that the byte array gets initialized, i.e. is not the 0-array
     assertFalse(Arrays.equals(new byte[32], message));
@@ -110,9 +110,9 @@ public class TestNaorPinkasOt {
   public void testFailedEncDec()
       throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     BigInteger privateKey = randNum.nextBigInteger(staticSpec.getP());
-    AbstractNaorPinkasElement publicKey = ot.getDhGenerator().multiply(privateKey);
-    Pair<AbstractNaorPinkasElement, byte[]> encryptionData =
-        (Pair<AbstractNaorPinkasElement, byte[]>) encryptMessage.invoke(ot, publicKey);
+    InterfaceNaorPinkasElement publicKey = ot.getDhGenerator().multiply(privateKey);
+    Pair<InterfaceNaorPinkasElement, byte[]> encryptionData =
+        (Pair<InterfaceNaorPinkasElement, byte[]>) encryptMessage.invoke(ot, publicKey);
     byte[] message = encryptionData.getSecond();
     // Sanity check that the byte array gets initialized, i.e. is not the 0-array
     assertEquals(32, message.length);

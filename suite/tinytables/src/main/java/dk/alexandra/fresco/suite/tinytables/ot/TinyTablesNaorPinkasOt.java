@@ -20,8 +20,8 @@ public class TinyTablesNaorPinkasOt implements TinyTablesOt {
    * Constructs a Naor-Pinkas OT instance using pre-specified Diffie-Hellman parameters.
    *
    * @param otherId The ID of the other party
-   * @param random The calling party's secure randomness generator
-   * @param params The Diffie-Hellman parameters to use
+   * @param random  The calling party's secure randomness generator
+   * @param params  The Diffie-Hellman parameters to use
    */
   public TinyTablesNaorPinkasOt(int otherId, Drbg random, DHParameterSpec params) {
     this.otherId = otherId;
@@ -31,7 +31,7 @@ public class TinyTablesNaorPinkasOt implements TinyTablesOt {
 
   @Override
   public void init(Network network) {
-    ot = new ECCNaorPinkas(otherId, random, network, params);
+    ot = new ECCNaorPinkas(otherId, random, network);
   }
 
   @Override
