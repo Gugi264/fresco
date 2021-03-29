@@ -4,11 +4,11 @@ import iaik.security.ec.math.curve.ECPoint;
 
 import java.math.BigInteger;
 
-public class ECCElement implements InterfaceNaorPinkasElement {
+public class ECCelerateElement implements InterfaceNaorPinkasElement {
 
   ECPoint point;
 
-  public ECCElement(ECPoint point) {
+  public ECCelerateElement(ECPoint point) {
     this.point = point;
   }
 
@@ -19,20 +19,20 @@ public class ECCElement implements InterfaceNaorPinkasElement {
 
   @Override
   public InterfaceNaorPinkasElement groupOp(InterfaceNaorPinkasElement other) {
-    ECCElement otherEcc = (ECCElement) other;
+    ECCelerateElement otherEcc = (ECCelerateElement) other;
     ECPoint tmpPoint = this.point.clone();
-    return new ECCElement(tmpPoint.addPoint(otherEcc.point));
+    return new ECCelerateElement(tmpPoint.addPoint(otherEcc.point));
   }
 
   @Override
   public InterfaceNaorPinkasElement inverse() {
-    return new ECCElement(this.point.clone().negatePoint());
+    return new ECCelerateElement(this.point.clone().negatePoint());
   }
 
   @Override
   public InterfaceNaorPinkasElement multiply(BigInteger other) {
     ECPoint tmpPoint = this.point.clone();
-    return new ECCElement(tmpPoint.multiplyPoint(other));
+    return new ECCelerateElement(tmpPoint.multiplyPoint(other));
   }
 
 }

@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.ECCelerateFieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -41,16 +40,12 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
 import dk.alexandra.fresco.tools.ot.base.*;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
-import iaik.security.ec.provider.ECCelerate;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.File;
 import java.math.BigInteger;
-import java.security.Security;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import javax.crypto.spec.DHParameterSpec;
 
 /**
  * Utility for reading all configuration from command line.
@@ -148,10 +143,7 @@ public class CmdLineProtocolSuite {
 
     final int modBitLength = Integer.parseInt(properties.getProperty("spdz.modBitLength", "128"));
     final BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
-    Security.addProvider(new BouncyCastleProvider());
-    ECCelerate.addAsProvider();
-    //ECCelerate.setOptimizationLevel(OptimizationLevel.FULL_SPEED);
-    final ECCelerateFieldDefinition definition = new ECCelerateFieldDefinition(modulus);
+    final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
     SpdzDataSupplier supplier = null;
 
     if (strategy == PreprocessingStrategy.DUMMY) {
@@ -234,7 +226,7 @@ public class CmdLineProtocolSuite {
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (int otherId = 1; otherId <= parties; otherId++) {
       if (myId != otherId) {
-        Ot ot = new ECCNaorPinkas(otherId, drbg, network);
+        Ot ot = new BouncyCastleNaorPinkas(otherId, drbg, network);
         RotList currentSeedOts = new RotList(drbg, prgSeedLength);
         if (myId < otherId) {
           currentSeedOts.send(ot);

@@ -24,14 +24,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.crypto.spec.DHParameterSpec;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.KeyFactorySpi.EC;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.theories.suppliers.TestedOn;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
@@ -40,7 +37,7 @@ public class TestFunctionalNaorPinkas {
   @Parameters
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][]{
-        {ECCNaorPinkas.class}, {BigIntNaorPinkas.class}, {BouncyCastleNaorPinkas.class}
+        {ECCelerateNaorPinkas.class}, {BigIntNaorPinkas.class}, {BouncyCastleNaorPinkas.class}
     });
   }
 
@@ -233,7 +230,7 @@ public class TestFunctionalNaorPinkas {
     Callable<List<StrictBitVector>> partyOneInit = () -> otSendCheat();
     Callable<List<StrictBitVector>> partyTwoInit = () -> otReceiveCheat(choice);
     // run tasks and get ordered list of results
-    if (this.testClass == ECCNaorPinkas.class || this.testClass == BouncyCastleNaorPinkas.class) {
+    if (this.testClass == ECCelerateNaorPinkas.class || this.testClass == BouncyCastleNaorPinkas.class) {
       // if you cheat in ECCNaorPinkas | BouncyCastleNaorPinkas, the cheated Message is not
       // a valid point on the curve anymore so it should throw an exception
       try {

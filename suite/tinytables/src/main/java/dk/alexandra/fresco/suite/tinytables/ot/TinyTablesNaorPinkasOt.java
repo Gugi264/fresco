@@ -6,8 +6,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.AbstractNaorPinkasOT;
-import dk.alexandra.fresco.tools.ot.base.BigIntNaorPinkas;
-import dk.alexandra.fresco.tools.ot.base.ECCNaorPinkas;
+import dk.alexandra.fresco.tools.ot.base.ECCelerateNaorPinkas;
 
 public class TinyTablesNaorPinkasOt implements TinyTablesOt {
 
@@ -31,7 +30,7 @@ public class TinyTablesNaorPinkasOt implements TinyTablesOt {
 
   @Override
   public void init(Network network) {
-    ot = new ECCNaorPinkas(otherId, random, network);
+    ot = new ECCelerateNaorPinkas(otherId, random, network);
   }
 
   @Override

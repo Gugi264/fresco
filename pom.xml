@@ -44,21 +44,6 @@
 
 	<!-- Test -->
 	<dependencies>
-		<dependency>
-			<groupId>iaik</groupId>
-			<artifactId>eccelerate</artifactId>
-			<version>6.02</version>
-		</dependency>
-		<dependency>
-			<groupId>iaik</groupId>
-			<artifactId>jce</artifactId>
-			<version>1.03</version>
-		</dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcpkix-jdk15on</artifactId>
-			<version>1.67</version>
-		</dependency>
 		<!-- logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>

@@ -6,9 +6,10 @@ import iaik.security.ec.common.ECParameterSpec;
 import iaik.security.ec.common.ECStandardizedParameterFactory;
 import iaik.security.ec.math.curve.ECPoint;
 
+import iaik.security.ec.provider.ECCelerate;
 import java.math.BigInteger;
 
-public class ECCNaorPinkas extends AbstractNaorPinkasOT {
+public class ECCelerateNaorPinkas extends AbstractNaorPinkasOT {
 
   /**
    * The modulus of the Diffie-Hellman group used in the OT.
@@ -24,8 +25,9 @@ public class ECCNaorPinkas extends AbstractNaorPinkasOT {
   private final iaik.security.ec.math.curve.EllipticCurve curve;
 
 
-  public ECCNaorPinkas(int otherId, Drbg randBit, Network network) {
+  public ECCelerateNaorPinkas(int otherId, Drbg randBit, Network network) {
     super(otherId, randBit, network);
+    ECCelerate.addAsProvider();
     this.ecParameterSpec = ECStandardizedParameterFactory.getPrimeCurveParametersByBitLength(256);
     this.curve = ecParameterSpec.getCurve().getIAIKCurve();
     this.dhModulus = this.curve.getOrder();
@@ -43,14 +45,14 @@ public class ECCNaorPinkas extends AbstractNaorPinkasOT {
     } catch (Exception e) {
       throw new RuntimeException("Error decoding Element in ECCNaorPinkas");
     }
-    return new ECCElement(tmp);
+    return new ECCelerateElement(tmp);
 
   }
 
 
   @Override
   InterfaceNaorPinkasElement generateRandomNaorPinkasElement() {
-    return new ECCElement(
+    return new ECCelerateElement(
         this.dhGenerator.clone().multiplyPoint(this.randNum.nextBigInteger(this.dhModulus)));
   }
 
@@ -61,7 +63,7 @@ public class ECCNaorPinkas extends AbstractNaorPinkasOT {
 
   @Override
   InterfaceNaorPinkasElement getDhGenerator() {
-    return new ECCElement(this.dhGenerator);
+    return new ECCelerateElement(this.dhGenerator);
   }
 
 
