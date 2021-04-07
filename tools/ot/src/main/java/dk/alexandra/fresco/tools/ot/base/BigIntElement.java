@@ -31,6 +31,6 @@ public class BigIntElement implements InterfaceNaorPinkasElement {
   @Override
   //modPow in this case
   public InterfaceNaorPinkasElement exponentiation(BigInteger n) {
-    return new BigIntElement(this.element.modPow(other, this.dhModulus), this.dhModulus);
+    return new BigIntElement(this.element.modPow(n, this.dhModulus), this.dhModulus);
   }
 }
