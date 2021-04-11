@@ -372,9 +372,7 @@ public class TestTinyTables {
       Supplier<ResourcePoolImpl> resourcePoolSupplier;
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> computationEngine;
       TinyTablesPreproProtocolSuite suite = new TinyTablesPreproProtocolSuite();
-      byte[] seed = new byte[32];
-      seed[0] = (byte) playerId;
-      Drbg random = new AesCtrDrbg(seed);
+      Drbg random = new AesCtrDrbg(new byte[32]);
       TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(playerId), random);
       Supplier<Network> network = new NetworkSupplier(playerId, netConf);
       resourcePoolSupplier = () -> new TinyTablesPreproResourcePool(
