@@ -39,8 +39,12 @@ import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesOt;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
+import dk.alexandra.fresco.tools.ot.base.AbstractChouOrlandiOT;
 import dk.alexandra.fresco.tools.ot.base.AbstractNaorPinkasOT;
+import dk.alexandra.fresco.tools.ot.base.BigIntChouOrlandi;
+import dk.alexandra.fresco.tools.ot.base.BigIntNaorPinkas;
 import dk.alexandra.fresco.tools.ot.base.BouncyCastleNaorPinkas;
+import dk.alexandra.fresco.tools.ot.base.ECCelerateNaorPinkas;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 
 import java.io.File;
@@ -226,7 +230,7 @@ public class CmdLineProtocolSuite {
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (int otherId = 1; otherId <= parties; otherId++) {
       if (myId != otherId) {
-        AbstractNaorPinkasOT ot = new BouncyCastleNaorPinkas(otherId, drbg, network);
+        AbstractNaorPinkasOT ot = new BigIntNaorPinkas(otherId, drbg, network);
         RotList currentSeedOts = new RotList(drbg, prgSeedLength);
         if (myId < otherId) {
           currentSeedOts.send(ot);

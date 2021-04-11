@@ -7,7 +7,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import javax.crypto.spec.DHParameterSpec;
 
-public class BigIntChouOrlandi extends AbstractChouOrlandiOT {
+public class BigIntChouOrlandi extends AbstractChouOrlandiOT<BigIntElement> {
 
   private static final String HASH_ALGORITHM = "SHA-256";
   private final MessageDigest hashDigest;
@@ -32,12 +32,12 @@ public class BigIntChouOrlandi extends AbstractChouOrlandiOT {
   }
 
   @Override
-  InterfaceNaorPinkasElement decodeElement(byte[] bytes) {
+  BigIntElement decodeElement(byte[] bytes) {
     return new BigIntElement(new BigInteger(bytes), this.dhModulus);
   }
 
   @Override
-  InterfaceNaorPinkasElement hashToElement(InterfaceNaorPinkasElement input) {
+  BigIntElement hashToElement(BigIntElement input) {
     byte[] hash = hashDigest.digest(input.toByteArray());
     return new BigIntElement(new BigInteger(hash), this.dhModulus);
   }
@@ -48,7 +48,7 @@ public class BigIntChouOrlandi extends AbstractChouOrlandiOT {
   }
 
   @Override
-  InterfaceNaorPinkasElement getGenerator() {
+  BigIntElement getGenerator() {
     return new BigIntElement(this.dhGenerator, this.dhModulus);
   }
 

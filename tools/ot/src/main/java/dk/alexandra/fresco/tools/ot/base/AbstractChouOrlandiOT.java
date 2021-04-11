@@ -15,7 +15,7 @@ import java.security.MessageDigest;
 /**
  * Uses Chou-Orlandi with fixes as seen in https://eprint.iacr.org/2017/1011
  */
-public abstract class AbstractChouOrlandiOT implements Ot {
+public abstract class AbstractChouOrlandiOT<T extends InterfaceNaorPinkasElement<T>> implements Ot {
 
   private static final String HASH_ALGORITHM = "SHA-256";
   private final int otherId;
@@ -30,11 +30,11 @@ public abstract class AbstractChouOrlandiOT implements Ot {
    * @param bytes the encoded element represented in bytes
    * @return the decoded element
    */
-  abstract InterfaceNaorPinkasElement decodeElement(byte[] bytes);
+  abstract T decodeElement(byte[] bytes);
 
-  abstract InterfaceNaorPinkasElement hashToElement(InterfaceNaorPinkasElement input);
+  abstract T hashToElement(T input);
 
-  abstract InterfaceNaorPinkasElement getGenerator();
+  abstract T getGenerator();
 
   abstract BigInteger getDhModulus();
 
@@ -85,14 +85,14 @@ public abstract class AbstractChouOrlandiOT implements Ot {
   private byte[] receiveRandomOt(boolean choiceBit) {
     //TODO: check if in group
     // S
-    InterfaceNaorPinkasElement S = this.decodeElement(network.receive(otherId));
+    T S = this.decodeElement(network.receive(otherId));
     // T = G(S)
-    InterfaceNaorPinkasElement T = hashToElement(S);
+    T T = hashToElement(S);
     // R = T^c*g^x
     // if c = 0 -> R = g^x
     // x
     BigInteger x = randNum.nextBigInteger(getDhModulus());
-    InterfaceNaorPinkasElement R;
+    T R;
     //TODO: constant time problem?
     if (choiceBit == false) {
       R = T.exponentiation(BigInteger.ZERO).groupOp(getGenerator().exponentiation(x));
@@ -121,14 +121,15 @@ public abstract class AbstractChouOrlandiOT implements Ot {
     // y
     BigInteger y = randNum.nextBigInteger(getDhModulus());
     // S
-    InterfaceNaorPinkasElement S = this.getGenerator().exponentiation(y);
+    T S = this.getGenerator().exponentiation(y);
     network.send(otherId, S.toByteArray());
     // T = G(S)
-    InterfaceNaorPinkasElement T = hashToElement(S);
+    T T = hashToElement(S);
     byte[] rBytes = network.receive(otherId);
     // R
     //TODO: check if in group
-    InterfaceNaorPinkasElement R = decodeElement(rBytes);
+    T R = decodeElement(rBytes);
+
 
     byte[] k0Hash, k1Hash;
     hashDigest.update(S.toByteArray());
