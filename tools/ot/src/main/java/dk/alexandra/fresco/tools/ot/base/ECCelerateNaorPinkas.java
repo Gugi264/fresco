@@ -40,9 +40,8 @@ public class ECCelerateNaorPinkas extends AbstractNaorPinkasOT {
 
   }
 
-
   @Override
-  public InterfaceNaorPinkasElement decodeElement(byte[] bytes) {
+  public InterfaceOtElement decodeElement(byte[] bytes) {
     ECPoint tmp;
     try {
       tmp = this.curve.decodePoint(bytes);
@@ -55,7 +54,7 @@ public class ECCelerateNaorPinkas extends AbstractNaorPinkasOT {
 
 
   @Override
-  InterfaceNaorPinkasElement generateRandomNaorPinkasElement() {
+  InterfaceOtElement generateRandomNaorPinkasElement() {
     return new ECCelerateElement(
         this.dhGenerator.clone().multiplyPoint(this.randNum.nextBigInteger(this.dhModulus)));
   }
@@ -66,7 +65,7 @@ public class ECCelerateNaorPinkas extends AbstractNaorPinkasOT {
   }
 
   @Override
-  InterfaceNaorPinkasElement getDhGenerator() {
+  InterfaceOtElement getDhGenerator() {
     return new ECCelerateElement(this.dhGenerator);
   }
 

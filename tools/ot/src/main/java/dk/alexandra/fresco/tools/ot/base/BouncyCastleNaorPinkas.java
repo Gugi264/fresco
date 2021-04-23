@@ -16,7 +16,7 @@ import java.security.spec.ECPoint;
 /**
  * Needs the Bouncy Castle dependency from the OT pom.xml
  */
-public class BouncyCastleNaorPinkas extends AbstractNaorPinkasOT {
+public class BouncyCastleNaorPinkas extends AbstractNaorPinkasOT<BouncyCastleECCElement> {
 
   /**
    * The modulus of the Diffie-Hellman group used in the OT.
@@ -41,13 +41,13 @@ public class BouncyCastleNaorPinkas extends AbstractNaorPinkasOT {
   }
 
   @Override
-  InterfaceNaorPinkasElement generateRandomNaorPinkasElement() {
+  BouncyCastleECCElement generateRandomNaorPinkasElement() {
     return new BouncyCastleECCElement(
         this.dhGenerator.multiply(this.randNum.nextBigInteger(this.dhModulus)));
   }
 
   @Override
-  InterfaceNaorPinkasElement decodeElement(byte[] bytes) {
+  BouncyCastleECCElement decodeElement(byte[] bytes) {
     return new BouncyCastleECCElement(this.curve.decodePoint(bytes));
   }
 
@@ -57,7 +57,7 @@ public class BouncyCastleNaorPinkas extends AbstractNaorPinkasOT {
   }
 
   @Override
-  InterfaceNaorPinkasElement getDhGenerator() {
+  BouncyCastleECCElement getDhGenerator() {
     return new BouncyCastleECCElement(this.dhGenerator);
   }
 }
