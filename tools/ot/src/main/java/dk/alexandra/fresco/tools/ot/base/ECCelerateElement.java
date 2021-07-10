@@ -12,11 +12,6 @@ public class ECCelerateElement implements InterfaceOtElement<ECCelerateElement> 
         this.point = point;
     }
 
-    // input the hashed message
-    ECCelerateElement hashToPoint(byte[] input, ECPoint generator) {
-        BigInteger random = new BigInteger(input);
-        return new ECCelerateElement(generator.multiplyPoint(random));
-    }
 
     @Override
     public byte[] toByteArray() {
@@ -40,10 +35,6 @@ public class ECCelerateElement implements InterfaceOtElement<ECCelerateElement> 
         return new ECCelerateElement(tmpPoint.multiplyPoint(n));
     }
 
-    @Override
-    public ECCelerateElement hashToElement(String DST) {
-        return null;
-    }
 
 
 }

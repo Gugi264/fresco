@@ -9,9 +9,13 @@ import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.otextension.PseudoOtp;
+import org.bouncycastle.crypto.digests.SHAKEDigest;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+
+import static org.bouncycastle.pqc.math.linearalgebra.BigEndianConversions.I2OSP;
 
 /**
  * Uses Chou-Orlandi with fixes as seen in https://eprint.iacr.org/2017/1011
@@ -34,11 +38,16 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
      */
     abstract T decodeElement(byte[] bytes);
 
-    abstract T hashToElement(T input);
-
     abstract T getGenerator();
 
     abstract BigInteger getDhModulus();
+
+    /**
+     * multiplies the BigInteger with the Generator
+     * @param input
+     * @return a new Element T
+     */
+    abstract T multiplyWithGenerator(BigInteger input);
 
     public AbstractChouOrlandiOT(int otherId, Drbg randBit, Network network) {
         this.otherId = otherId;
@@ -89,7 +98,7 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
         //TODO: check if point is in group
         T S = this.decodeElement(network.receive(otherId));
         // T = G(S)
-        T T = S.hashToElement("ChourOrlandi");
+        T T = hashToFieldElement(S, "ChourOrlandi");
         // R = T^c*g^x
         // if c = 0 -> R = g^x
         // if c = 1 -> R = T*g^x
@@ -124,7 +133,7 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
         T S = this.getGenerator().exponentiation(y);
         network.send(otherId, S.toByteArray());
         // T = G(S)
-        T T = hashToElement(S);
+        T T = hashToFieldElement(S, "ChourOrlandi");
         byte[] rBytes = network.receive(otherId);
         // R
         //TODO: check if in group
@@ -147,5 +156,34 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
 
         // sending of the Encrypted messages is done in outer function
         return new Pair<>(k0Hash, k1Hash);
+    }
+
+
+    /**
+     * Needed for Chou Orlandi
+     *
+     * Hashing to finite fields according to [1] in point 5.2
+     * [1] https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06
+     * @return a byte[] intendted to create a new element in the desired filed
+     */
+    private T hashToFieldElement(T element, String DST) {
+        byte[] msg = element.toByteArray();
+        //security parameter in bits
+        int k = 256;
+        int L = (int) Math.ceil((Math.ceil(getDhModulus().bitLength()) + k) / 8);
+
+        //start of algorithm, we only need one element, and m is 1, so L = lenInBytes
+        int lenInByts = L;
+        // start expand_message_xof
+        SHAKEDigest xof = new SHAKEDigest(256);
+        xof.update(msg, 0, msg.length);
+        xof.update(I2OSP(lenInByts, 2), 0, 2);
+        xof.update(I2OSP(DST.getBytes(StandardCharsets.UTF_8).length, 1), 0, 1);
+        xof.update(DST.getBytes(StandardCharsets.UTF_8), 0, DST.getBytes(StandardCharsets.UTF_8).length);
+        byte[] pseudoRandomBytes = new byte[lenInByts];
+        xof.doFinal(pseudoRandomBytes, 0, lenInByts);
+        // end expand_message_xof
+        BigInteger randBigInt = new BigInteger(1, pseudoRandomBytes);
+        return multiplyWithGenerator(randBigInt);
     }
 }

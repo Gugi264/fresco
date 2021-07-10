@@ -37,17 +37,16 @@ public class BigIntChouOrlandi extends AbstractChouOrlandiOT<BigIntElement> {
   }
 
   @Override
-  BigIntElement hashToElement(BigIntElement input) {
-    byte[] hash = hashDigest.digest(input.toByteArray());
-    return new BigIntElement(new BigInteger(hash), this.dhModulus);
-  }
-
-  @Override
   BigInteger getDhModulus() {
     return this.dhModulus;
   }
 
-  @Override
+    @Override
+    BigIntElement multiplyWithGenerator(BigInteger input) {
+        return new BigIntElement(input, this.dhModulus);
+    }
+
+    @Override
   BigIntElement getGenerator() {
     return new BigIntElement(this.dhGenerator, this.dhModulus);
   }

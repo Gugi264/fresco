@@ -52,10 +52,6 @@ public class ECCChouOrlandi extends AbstractChouOrlandiOT<ECCelerateElement>{
         return new ECCelerateElement(tmp);
     }
 
-    @Override
-    ECCelerateElement hashToElement(ECCelerateElement input) {
-        return input.hashToPoint(input.toByteArray(), this.dhGenerator.clone());
-    }
 
     @Override
     ECCelerateElement getGenerator() {
@@ -65,5 +61,10 @@ public class ECCChouOrlandi extends AbstractChouOrlandiOT<ECCelerateElement>{
     @Override
     BigInteger getDhModulus() {
         return this.dhModulus;
+    }
+
+    @Override
+    ECCelerateElement multiplyWithGenerator(BigInteger input) {
+       return new ECCelerateElement(this.dhGenerator.clone().multiplyPoint(input));
     }
 }

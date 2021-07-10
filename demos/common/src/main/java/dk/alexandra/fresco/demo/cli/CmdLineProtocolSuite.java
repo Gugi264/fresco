@@ -225,7 +225,7 @@ public class CmdLineProtocolSuite {
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (int otherId = 1; otherId <= parties; otherId++) {
       if (myId != otherId) {
-        AbstractChouOrlandiOT ot = new ECCChouOrlandi(otherId, drbg, network);
+        AbstractChouOrlandiOT ot = new BouncyCastleChouOrlandi(otherId, drbg, network);
         RotList currentSeedOts = new RotList(drbg, prgSeedLength);
         if (myId < otherId) {
           currentSeedOts.send(ot);

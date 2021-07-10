@@ -34,9 +34,4 @@ public class BouncyCastleECCElement implements InterfaceOtElement<BouncyCastleEC
     public BouncyCastleECCElement exponentiation(BigInteger n) {
         return new BouncyCastleECCElement(this.point.multiply(n));
     }
-
-    @Override
-    public BouncyCastleECCElement hashToElement(String DST) {
-        return null;
-    }
 }

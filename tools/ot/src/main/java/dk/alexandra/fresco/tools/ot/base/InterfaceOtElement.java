@@ -10,6 +10,7 @@ public interface InterfaceOtElement<T extends InterfaceOtElement<T>> {
      */
     byte[] toByteArray();
 
+
     /**
      * Performs the group operation
      *
@@ -25,19 +26,11 @@ public interface InterfaceOtElement<T extends InterfaceOtElement<T>> {
      */
     T inverse();
 
-
     /**
      * Performs the group operation n-times
      * @param n
      * @return
      */
     T exponentiation(BigInteger n);
-
-    /**
-     * Hash to another element in the field
-     * needed for Chour Orlandi
-     * @return
-     */
-    T hashToElement(String DST);
 
 }

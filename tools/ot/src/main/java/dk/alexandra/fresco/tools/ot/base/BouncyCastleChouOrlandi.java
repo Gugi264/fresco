@@ -26,6 +26,11 @@ public class BouncyCastleChouOrlandi extends AbstractChouOrlandiOT<BouncyCastleE
 
     private final ECCurve curve;
 
+    @Override
+    BouncyCastleECCElement multiplyWithGenerator(BigInteger input) {
+        return new BouncyCastleECCElement(this.dhGenerator.multiply(input));
+    }
+
     public BouncyCastleChouOrlandi(int otherId, Drbg randBit, Network network) {
         super(otherId, randBit, network);
         Security.addProvider(new BouncyCastleProvider());
@@ -40,12 +45,6 @@ public class BouncyCastleChouOrlandi extends AbstractChouOrlandiOT<BouncyCastleE
     @Override
     BouncyCastleECCElement decodeElement(byte[] bytes) {
         return new BouncyCastleECCElement(this.curve.decodePoint(bytes));
-    }
-
-    @Override
-    BouncyCastleECCElement hashToElement(BouncyCastleECCElement input) {
-        // TODO: is there a hash to point in bouncycastle?
-        return null;
     }
 
     @Override
